@@ -1,0 +1,740 @@
+<!DOCTYPE html>
+
+<html lang="es">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+<meta name="theme-color" content="#0b1220" />
+
+<!-- PWA / iPhone Home Screen -->
+
+<meta name="apple-mobile-web-app-capable" content="yes" />
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+<meta name="apple-mobile-web-app-title" content="Extintores" />
+<link rel="apple-touch-icon" href="icon-180.png" />
+<link rel="apple-touch-icon" sizes="180x180" href="icon-180.png" />
+<link rel="icon" type="image/png" sizes="192x192" href="icon-192.png" />
+<link rel="icon" type="image/png" sizes="512x512" href="icon-512.png" />
+
+<title>Calculadora de Extintores · DS 594</title>
+
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet" />
+
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+  html, body { width: 100%; overflow-x: hidden; }
+  body {
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
+    background: linear-gradient(180deg, #0b1220 0%, #1a2540 50%, #243349 100%);
+    background-attachment: fixed;
+    color: #e2e8f0;
+    min-height: 100vh;
+    padding-top: env(safe-area-inset-top);
+    padding-bottom: env(safe-area-inset-bottom);
+  }
+  .halo { position: fixed; pointer-events: none; border-radius: 50%; filter: blur(60px); z-index: 0; }
+  .halo-1 { top: -200px; right: -150px; width: 600px; height: 600px; opacity: 0.25; background: radial-gradient(circle, #3b82f6 0%, transparent 65%); }
+  .halo-2 { bottom: -200px; left: -150px; width: 700px; height: 700px; opacity: 0.20; background: radial-gradient(circle, #6366f1 0%, transparent 65%); }
+  .halo-3 { top: 33%; left: 50%; transform: translateX(-50%); width: 500px; height: 500px; opacity: 0.10; background: radial-gradient(circle, #f97316 0%, transparent 70%); filter: blur(100px); }
+
+  .container { position: relative; max-width: 900px; margin: 0 auto; padding: 40px 16px 60px; z-index: 1; }
+  @media(min-width: 640px) { .container { padding: 60px 32px; } }
+
+  /* HEADER */
+  header { text-align: center; margin-bottom: 48px; }
+  .badge {
+    display: inline-flex; align-items: center; gap: 8px;
+    padding: 6px 16px; margin-bottom: 24px; border-radius: 999px;
+    background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1);
+    backdrop-filter: blur(8px);
+    font-size: 12px; color: #cbd5e1; font-weight: 500; letter-spacing: 0.02em;
+  }
+  .badge .dot {
+    width: 6px; height: 6px; border-radius: 50%; background: #fb923c;
+    animation: pulse 2s ease-in-out infinite;
+  }
+  @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.4; } }
+
+  .logo {
+    display: inline-flex; align-items: center; justify-content: center;
+    width: 64px; height: 64px; margin-bottom: 24px;
+    border-radius: 16px;
+    background: linear-gradient(135deg, #fb923c, #ef4444);
+    box-shadow: 0 25px 50px -12px rgba(249, 115, 22, 0.4);
+  }
+  .logo svg { width: 32px; height: 32px; color: white; }
+
+  h1 {
+    font-family: 'Playfair Display', serif;
+    font-size: 38px; font-weight: 700; line-height: 1.1; letter-spacing: -0.02em;
+    color: white;
+  }
+  @media(min-width: 640px) { h1 { font-size: 60px; } }
+  h1 .accent {
+    background: linear-gradient(90deg, #93c5fd, #a5f3fc, #60a5fa);
+    -webkit-background-clip: text; background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
+  .subtitle {
+    margin-top: 20px; color: #94a3b8; font-size: 16px; font-weight: 300;
+    line-height: 1.6; max-width: 600px; margin-left: auto; margin-right: auto;
+  }
+  @media(min-width: 640px) { .subtitle { font-size: 18px; } }
+  .subtitle strong { color: #e2e8f0; font-weight: 500; }
+
+  /* CARDS */
+  .grid-2 { display: grid; grid-template-columns: 1fr; gap: 20px; margin-bottom: 24px; }
+  @media(min-width: 1024px) { .grid-2 { grid-template-columns: 1fr 1fr; } }
+
+  .card {
+    border-radius: 16px;
+    background: rgba(255,255,255,0.04);
+    backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
+    border: 1px solid rgba(255,255,255,0.1);
+    padding: 28px;
+    box-shadow: 0 20px 25px -5px rgba(0,0,0,0.2);
+  }
+
+  .card-header { display: flex; align-items: center; gap: 12px; margin-bottom: 20px; }
+  .step-num {
+    width: 28px; height: 28px; border-radius: 8px;
+    background: rgba(59,130,246,0.2); border: 1px solid rgba(96,165,250,0.3);
+    color: #93c5fd; font-size: 12px; font-weight: 600;
+    display: flex; align-items: center; justify-content: center;
+  }
+  .card-title { color: white; font-size: 16px; font-weight: 600; }
+  .label { color: #94a3b8; font-size: 12px; font-weight: 500; margin-bottom: 12px; letter-spacing: 0.02em; }
+
+  /* INPUT */
+  .input-wrap { position: relative; }
+  input[type="number"] {
+    width: 100%; background: rgba(15,23,42,0.4);
+    border: 1px solid rgba(255,255,255,0.1); border-radius: 12px;
+    color: white; font-size: 48px; font-weight: 700; font-family: inherit;
+    padding: 20px; outline: none; transition: all 0.2s;
+    -moz-appearance: textfield;
+  }
+  input[type="number"]::-webkit-outer-spin-button, input[type="number"]::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
+  input[type="number"]:focus { border-color: rgba(96,165,250,0.5); background: rgba(15,23,42,0.6); }
+  input[type="number"]::placeholder { color: #334155; }
+  .unit { position: absolute; right: 20px; top: 50%; transform: translateY(-50%); color: #94a3b8; font-size: 18px; font-weight: 500; pointer-events: none; }
+
+  .quick-btns { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 16px; }
+  .quick-btn {
+    padding: 6px 14px; border-radius: 999px;
+    background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1);
+    color: #cbd5e1; font-size: 12px; font-weight: 500; font-family: inherit;
+    cursor: pointer; transition: all 0.2s;
+  }
+  .quick-btn:hover, .quick-btn:active { background: rgba(59,130,246,0.2); border-color: rgba(96,165,250,0.4); color: #bfdbfe; }
+
+  /* FIRE CLASSES */
+  .classes-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 8px; }
+  .class-btn {
+    display: flex; flex-direction: column; align-items: center; gap: 6px;
+    padding: 12px 8px; border-radius: 12px;
+    background: rgba(255,255,255,0.02); border: 1px solid rgba(255,255,255,0.05);
+    cursor: pointer; transition: all 0.2s; font-family: inherit;
+  }
+  .class-btn:hover { background: rgba(255,255,255,0.06); border-color: rgba(255,255,255,0.1); }
+  .class-btn.active { background: rgba(255,255,255,0.1); border-color: rgba(255,255,255,0.2); }
+  .class-btn svg { width: 18px; height: 18px; color: #64748b; transition: color 0.2s; }
+  .class-btn .letter { font-size: 20px; font-weight: 700; color: #475569; transition: color 0.2s; }
+  .class-btn.active .letter { color: white; }
+  .class-btn.active[data-color="A"] svg { color: #10b981; } .class-btn.active[data-color="A"] { box-shadow: 0 8px 24px -8px rgba(16,185,129,0.4); }
+  .class-btn.active[data-color="B"] svg { color: #f43f5e; } .class-btn.active[data-color="B"] { box-shadow: 0 8px 24px -8px rgba(244,63,94,0.4); }
+  .class-btn.active[data-color="C"] svg { color: #0ea5e9; } .class-btn.active[data-color="C"] { box-shadow: 0 8px 24px -8px rgba(14,165,233,0.4); }
+  .class-btn.active[data-color="D"] svg { color: #f59e0b; } .class-btn.active[data-color="D"] { box-shadow: 0 8px 24px -8px rgba(245,158,11,0.4); }
+  .class-btn.active[data-color="K"] svg { color: #fb923c; } .class-btn.active[data-color="K"] { box-shadow: 0 8px 24px -8px rgba(251,146,60,0.4); }
+
+  .selected-list { margin-top: 16px; display: flex; flex-direction: column; gap: 8px; }
+  .selected-item {
+    display: flex; align-items: flex-start; gap: 12px;
+    padding: 12px; border-radius: 12px;
+    background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.05);
+  }
+  .selected-badge {
+    flex-shrink: 0; width: 32px; height: 32px; border-radius: 8px;
+    display: flex; align-items: center; justify-content: center;
+    color: white; font-weight: 700; font-size: 14px;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.2);
+  }
+  .selected-info { font-size: 12px; }
+  .selected-info .title { color: white; font-weight: 600; }
+  .selected-info .examples { color: #94a3b8; margin-top: 2px; }
+
+  /* HERO RESULT */
+  .hero-result {
+    position: relative; border-radius: 16px; overflow: hidden;
+    margin-bottom: 20px;
+    background: linear-gradient(135deg, #1e3a8a 0%, #1e40af 50%, #312e81 100%);
+  }
+  .hero-result::before {
+    content: ''; position: absolute; top: -80px; right: -80px;
+    width: 320px; height: 320px; border-radius: 50%;
+    background: radial-gradient(circle, #f97316 0%, transparent 70%);
+    opacity: 0.4; filter: blur(40px);
+  }
+  .hero-content { position: relative; padding: 28px; }
+  @media(min-width: 640px) { .hero-content { padding: 36px; } }
+  .hero-tag { display: flex; align-items: center; gap: 8px; margin-bottom: 24px; color: #fed7aa; font-size: 12px; font-weight: 600; letter-spacing: 0.05em; text-transform: uppercase; }
+  .hero-grid { display: grid; grid-template-columns: 1fr; gap: 24px; }
+  @media(min-width: 640px) { .hero-grid { grid-template-columns: repeat(3, 1fr); gap: 32px; } }
+  .hero-stat .label-sm { color: rgba(191,219,254,0.7); font-size: 11px; font-weight: 500; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 8px; }
+  .hero-stat .value { font-family: 'Playfair Display', serif; font-size: 64px; font-weight: 700; color: white; line-height: 1; }
+  .hero-stat .value.orange { background: linear-gradient(135deg, #fdba74, #f97316); -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent; }
+  .hero-stat .value-suffix { font-size: 28px; color: rgba(191,219,254,0.6); margin-left: 4px; }
+  .hero-stat .desc { color: rgba(191,219,254,0.6); font-size: 14px; margin-top: 8px; }
+
+  /* TABLE */
+  .table-wrap { border-radius: 16px; background: rgba(255,255,255,0.04); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); border: 1px solid rgba(255,255,255,0.1); overflow: hidden; box-shadow: 0 20px 25px -5px rgba(0,0,0,0.2); }
+  .table-header { padding: 16px 24px; border-bottom: 1px solid rgba(255,255,255,0.05); }
+  .table-header h3 { color: white; font-size: 16px; font-weight: 600; display: flex; align-items: center; gap: 8px; }
+  .table-header svg { width: 16px; height: 16px; color: #93c5fd; }
+  .table-scroll { overflow-x: auto; }
+  table { width: 100%; font-size: 14px; border-collapse: collapse; }
+  thead tr { border-bottom: 1px solid rgba(255,255,255,0.05); }
+  th { padding: 12px 24px; text-align: right; color: #64748b; font-size: 11px; font-weight: 500; text-transform: uppercase; letter-spacing: 0.05em; }
+  th:first-child { text-align: left; }
+  tbody tr { border-bottom: 1px solid rgba(255,255,255,0.05); transition: background 0.2s; }
+  tbody tr:last-child { border-bottom: none; }
+  tbody tr:hover { background: rgba(255,255,255,0.02); }
+  tbody tr.optimo { background: rgba(249,115,22,0.05); }
+  td { padding: 16px 24px; text-align: right; color: #cbd5e1; }
+  td:first-child { text-align: left; }
+  .td-potencial { font-family: 'Playfair Display', serif; font-size: 24px; font-weight: 700; color: white; }
+  tr.optimo .td-potencial { color: #fdba74; }
+  .tag-optimo { display: inline-block; padding: 2px 10px; border-radius: 999px; background: rgba(251,146,60,0.2); color: #fed7aa; font-size: 10px; font-weight: 600; border: 1px solid rgba(251,146,60,0.3); margin-left: 8px; }
+  .td-cantidad { color: white; font-size: 20px; font-weight: 600; }
+  .table-footer { padding: 12px 24px; background: rgba(255,255,255,0.02); border-top: 1px solid rgba(255,255,255,0.05); font-size: 12px; color: #64748b; font-style: italic; }
+  .hide-mobile { display: none; }
+  @media(min-width: 640px) { .hide-mobile { display: table-cell; } }
+
+  /* SECTION TITLE */
+  .section-title { text-align: center; margin-bottom: 24px; }
+  .section-title .tag { display: inline-flex; align-items: center; gap: 8px; padding: 6px 16px; border-radius: 999px; background: rgba(251,191,36,0.1); border: 1px solid rgba(251,191,36,0.2); color: #fde68a; font-size: 12px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; }
+  .section-title .tag .dot { width: 6px; height: 6px; border-radius: 50%; background: #fbbf24; }
+
+  /* AGENT SUGGESTION */
+  .agent-card { display: flex; align-items: flex-start; gap: 16px; margin-bottom: 24px; }
+  .agent-icon { flex-shrink: 0; width: 48px; height: 48px; border-radius: 12px; background: linear-gradient(135deg, #fbbf24, #eab308); display: flex; align-items: center; justify-content: center; box-shadow: 0 10px 15px -3px rgba(251,191,36,0.2); }
+  .agent-icon svg { width: 22px; height: 22px; color: white; }
+  .agent-tag { color: #fcd34d; font-size: 12px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 4px; }
+  .agent-name { font-family: 'Playfair Display', serif; font-size: 24px; color: white; font-weight: 600; margin-bottom: 8px; }
+  @media(min-width: 640px) { .agent-name { font-size: 28px; } }
+  .agent-note { color: #94a3b8; font-size: 14px; line-height: 1.6; font-weight: 300; }
+
+  .class-detail { display: flex; align-items: flex-start; gap: 16px; padding: 16px; border-radius: 12px; background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.05); margin-top: 12px; }
+  .class-detail-icon { flex-shrink: 0; width: 40px; height: 40px; border-radius: 8px; display: flex; align-items: center; justify-content: center; box-shadow: 0 4px 6px rgba(0,0,0,0.2); }
+  .class-detail-icon svg { width: 18px; height: 18px; color: white; }
+  .class-detail-letter { font-family: 'Playfair Display', serif; font-size: 24px; font-weight: 700; color: white; }
+  .class-detail-title { color: white; font-weight: 500; font-size: 14px; }
+  .class-detail-examples { color: #94a3b8; font-size: 12px; margin: 4px 0 12px; font-weight: 300; }
+  .agent-pills { display: flex; flex-wrap: wrap; gap: 6px; }
+  .agent-pill { font-size: 12px; padding: 4px 10px; border-radius: 999px; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); color: #cbd5e1; font-weight: 300; }
+
+  /* ADDITIONAL EXTINGUISHERS */
+  .info-box { padding: 24px; border-radius: 16px; background: rgba(255,255,255,0.04); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); border: 1px solid rgba(255,255,255,0.1); margin-bottom: 16px; box-shadow: 0 20px 25px -5px rgba(0,0,0,0.2); }
+  .info-box p { color: #cbd5e1; font-size: 14px; line-height: 1.6; font-weight: 300; text-align: center; }
+  .info-box strong.orange { color: #fdba74; font-weight: 600; }
+  .info-box strong.white { color: white; font-weight: 500; }
+
+  .additional-card { padding: 24px; border-radius: 16px; background: rgba(255,255,255,0.04); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); border: 1px solid rgba(255,255,255,0.1); box-shadow: 0 20px 25px -5px rgba(0,0,0,0.2); margin-bottom: 16px; }
+  .additional-header { display: flex; align-items: flex-start; gap: 16px; }
+  .add-icon { flex-shrink: 0; width: 48px; height: 48px; border-radius: 12px; display: flex; align-items: center; justify-content: center; box-shadow: 0 10px 15px -3px rgba(0,0,0,0.2); }
+  .add-icon svg { width: 22px; height: 22px; color: white; }
+  .add-content { flex: 1; min-width: 0; }
+  .add-title-row { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; margin-bottom: 16px; }
+  .add-class-name { font-family: 'Playfair Display', serif; font-size: 24px; font-weight: 700; color: white; }
+  .tag-obligatorio { font-size: 11px; padding: 4px 10px; border-radius: 999px; background: rgba(239,68,68,0.2); color: #fecaca; font-weight: 600; border: 1px solid rgba(248,113,113,0.3); }
+  .tag-recomendado { font-size: 11px; padding: 4px 10px; border-radius: 999px; background: rgba(251,191,36,0.2); color: #fde68a; font-weight: 600; border: 1px solid rgba(251,191,36,0.3); }
+
+  .add-grid { display: grid; grid-template-columns: 1fr; gap: 20px; }
+  @media(min-width: 768px) { .add-grid { grid-template-columns: 1fr 1fr; } }
+  .add-section .label-mini { color: #64748b; font-size: 11px; font-weight: 500; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 6px; }
+  .add-section .value-text { color: white; font-weight: 600; margin-bottom: 8px; font-size: 14px; }
+  .add-section .pill { display: inline-block; color: #fed7aa; font-size: 12px; padding: 4px 12px; border-radius: 999px; background: rgba(249,115,22,0.1); border: 1px solid rgba(251,146,60,0.3); font-weight: 500; }
+  .add-section .ubic-text { color: #cbd5e1; font-size: 14px; line-height: 1.6; font-weight: 300; }
+  .add-justification { margin-top: 20px; padding-top: 16px; border-top: 1px solid rgba(255,255,255,0.05); color: #94a3b8; font-size: 12px; line-height: 1.6; font-weight: 300; }
+  .add-justification strong { color: #fcd34d; font-weight: 600; margin-right: 6px; }
+
+  .summary-card { margin-top: 16px; padding: 24px; border-radius: 16px; background: linear-gradient(135deg, rgba(30,58,138,0.3), rgba(15,23,42,0.3)); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); border: 1px solid rgba(96,165,250,0.2); box-shadow: 0 20px 25px -5px rgba(0,0,0,0.2); }
+  .summary-card .title { color: #bfdbfe; font-size: 12px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 16px; text-align: center; }
+  .summary-grid { display: grid; grid-template-columns: 1fr; gap: 20px; }
+  @media(min-width: 640px) { .summary-grid { grid-template-columns: 1fr 1fr; } }
+  .summary-item { display: flex; align-items: center; gap: 16px; padding: 16px; border-radius: 12px; background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.05); }
+  .summary-num { font-family: 'Playfair Display', serif; font-size: 36px; font-weight: 700; }
+  .summary-num.orange { color: #fdba74; }
+  .summary-num.amber { color: #fcd34d; }
+  .summary-text .title-sm { color: white; font-weight: 600; font-size: 14px; }
+  .summary-text .desc { color: #94a3b8; font-size: 12px; font-weight: 300; }
+
+  /* ALERTS */
+  .alert-card { padding: 24px; border-radius: 16px; background: rgba(255,255,255,0.04); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); border: 1px solid rgba(255,255,255,0.1); box-shadow: 0 20px 25px -5px rgba(0,0,0,0.2); }
+  .alert-header { display: flex; align-items: center; gap: 8px; margin-bottom: 12px; }
+  .alert-icon { width: 28px; height: 28px; border-radius: 8px; display: flex; align-items: center; justify-content: center; }
+  .alert-icon svg { width: 14px; height: 14px; }
+  .alert-icon.amber { background: rgba(251,191,36,0.2); }
+  .alert-icon.amber svg { color: #fcd34d; }
+  .alert-icon.orange { background: rgba(251,146,60,0.2); }
+  .alert-icon.orange svg { color: #fdba74; }
+  .alert-tag { font-size: 12px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; }
+  .alert-tag.amber { color: #fde68a; }
+  .alert-tag.orange { color: #fed7aa; }
+  .alert-card p { color: #cbd5e1; font-size: 14px; line-height: 1.6; font-weight: 300; }
+  .alert-card ul { list-style: none; padding: 0; }
+  .alert-card li { color: #cbd5e1; font-size: 14px; padding: 4px 0; font-weight: 300; }
+  .alert-card li::before { content: '•'; color: #93c5fd; margin-right: 8px; }
+  .alert-card li strong { color: white; font-weight: 500; }
+
+  /* INFO LEGAL */
+  .info-legal { padding: 28px; border-radius: 16px; background: rgba(255,255,255,0.04); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); border: 1px solid rgba(255,255,255,0.1); box-shadow: 0 20px 25px -5px rgba(0,0,0,0.2); }
+  .info-legal-header { display: flex; align-items: center; gap: 8px; margin-bottom: 20px; }
+  .info-legal-header svg { width: 16px; height: 16px; color: #94a3b8; }
+  .info-legal-header h3 { color: #cbd5e1; font-size: 12px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; }
+  .info-legal-grid { display: grid; grid-template-columns: 1fr; gap: 24px; }
+  @media(min-width: 768px) { .info-legal-grid { grid-template-columns: 1fr 1fr; } }
+  .info-legal h4 { font-family: 'Playfair Display', serif; color: white; font-size: 17px; font-weight: 600; margin-bottom: 8px; }
+  .info-legal p { color: #94a3b8; font-size: 14px; line-height: 1.6; font-weight: 300; }
+  .info-disclaimer { margin-top: 24px; padding-top: 20px; border-top: 1px solid rgba(255,255,255,0.05); font-size: 12px; color: #64748b; line-height: 1.6; font-weight: 300; font-style: italic; }
+
+  footer { margin-top: 40px; text-align: center; }
+  footer p { color: #64748b; font-size: 12px; font-weight: 300; }
+
+  .hidden { display: none !important; }
+  section { margin-bottom: 24px; }
+</style>
+
+</head>
+<body>
+
+<div class="halo halo-1"></div>
+<div class="halo halo-2"></div>
+<div class="halo halo-3"></div>
+
+<div class="container">
+
+  <!-- HEADER -->
+
+  <header>
+    <div class="badge"><span class="dot"></span><span>DS 594 · NCh 934:2008 · Chile</span></div>
+    <div class="logo">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M8.5 14.5A2.5 2.5 0 0 0 11 12c0-1.38-.5-2-1-3-1.072-2.143-.224-4.054 2-6 .5 2.5 2 4.9 4 6.5 2 1.6 3 3.5 3 5.5a7 7 0 1 1-14 0c0-1.153.433-2.294 1-3a2.5 2.5 0 0 0 2.5 2.5z"/></svg>
+    </div>
+    <h1>Calculadora de<br/><span class="accent">Extintores</span></h1>
+    <p class="subtitle">Determine la cantidad mínima de extintores y el agente adecuado según el <strong>Decreto Supremo 594, Artículo 46</strong>.</p>
+  </header>
+
+  <!-- INPUTS -->
+
+  <section class="grid-2">
+    <div class="card">
+      <div class="card-header">
+        <div class="step-num">1</div>
+        <h2 class="card-title">Superficie del sector</h2>
+      </div>
+      <div class="label">ÁREA A PROTEGER</div>
+      <div class="input-wrap">
+        <input type="number" id="area-input" min="1" placeholder="0" inputmode="numeric" />
+        <span class="unit">m²</span>
+      </div>
+      <div class="quick-btns" id="quick-btns">
+        <button class="quick-btn" data-val="50">50 m²</button>
+        <button class="quick-btn" data-val="100">100 m²</button>
+        <button class="quick-btn" data-val="200">200 m²</button>
+        <button class="quick-btn" data-val="500">500 m²</button>
+        <button class="quick-btn" data-val="1000">1000 m²</button>
+      </div>
+    </div>
+
+```
+<div class="card">
+  <div class="card-header">
+    <div class="step-num">2</div>
+    <h2 class="card-title">Clases de fuego presentes</h2>
+  </div>
+  <div class="label">SELECCIONE UNA O MÁS · NCh 934:2008</div>
+  <div class="classes-grid" id="classes-grid"></div>
+  <div class="selected-list" id="selected-list"></div>
+</div>
+```
+
+  </section>
+
+  <!-- RESULTADOS -->
+
+  <section id="resultados-section" class="hidden">
+    <div class="hero-result">
+      <div class="hero-content">
+        <div class="hero-tag">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+          <span>Configuración óptima recomendada</span>
+        </div>
+        <div class="hero-grid">
+          <div class="hero-stat">
+            <div class="label-sm">Cantidad mínima</div>
+            <div class="value" id="hero-cantidad">-</div>
+            <div class="desc" id="hero-cantidad-desc">extintores</div>
+          </div>
+          <div class="hero-stat">
+            <div class="label-sm">Potencial sugerido</div>
+            <div class="value orange" id="hero-potencial">-</div>
+            <div class="desc" id="hero-cobertura">- m² c/u</div>
+          </div>
+          <div class="hero-stat">
+            <div class="label-sm">Distancia máxima</div>
+            <div class="value"><span id="hero-distancia">-</span><span class="value-suffix">m</span></div>
+            <div class="desc">de recorrido</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+```
+<div class="table-wrap">
+  <div class="table-header">
+    <h3>
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21.3 15.3a2.4 2.4 0 0 1 0 3.4l-2.6 2.6a2.4 2.4 0 0 1-3.4 0L2.7 8.7a2.41 2.41 0 0 1 0-3.4l2.6-2.6a2.41 2.41 0 0 1 3.4 0Z"/><path d="m14.5 12.5 2-2"/><path d="m11.5 9.5 2-2"/><path d="m8.5 6.5 2-2"/><path d="m17.5 15.5 2-2"/></svg>
+      Comparativa por potencial
+    </h3>
+  </div>
+  <div class="table-scroll">
+    <table>
+      <thead>
+        <tr><th>Potencial</th><th>Cobertura</th><th>Dist. máx.</th><th>Cantidad</th><th class="hide-mobile">Total</th></tr>
+      </thead>
+      <tbody id="results-tbody"></tbody>
+    </table>
+  </div>
+  <div class="table-footer">Fórmula: Cantidad = ⌈ Superficie ÷ Cobertura ⌉ · Mínimo 1 extintor</div>
+</div>
+```
+
+  </section>
+
+  <!-- SUGERENCIA AGENTE -->
+
+  <section id="agent-section" class="hidden">
+    <div class="card">
+      <div class="agent-card">
+        <div class="agent-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M17.7 7.7a2.5 2.5 0 1 1 1.8 4.3H2"/><path d="M9.6 4.6A2 2 0 1 1 11 8H2"/><path d="M12.6 19.4A2 2 0 1 0 14 16H2"/></svg>
+        </div>
+        <div>
+          <div class="agent-tag">Agente extintor recomendado</div>
+          <div class="agent-name" id="agent-name"></div>
+          <div class="agent-note" id="agent-note"></div>
+        </div>
+      </div>
+      <div id="agent-classes"></div>
+    </div>
+  </section>
+
+  <!-- EXTINTORES ADICIONALES -->
+
+  <section id="additional-section" class="hidden">
+    <div class="section-title">
+      <div class="tag"><span class="dot"></span><span>Refuerzo adicional por clase de fuego</span></div>
+    </div>
+
+```
+<div class="info-box">
+  <p id="info-box-text"></p>
+</div>
+
+<div id="additional-list"></div>
+
+<div class="summary-card">
+  <div class="title">Resumen total recomendado</div>
+  <div class="summary-grid">
+    <div class="summary-item">
+      <div class="summary-num orange" id="summary-main">-</div>
+      <div class="summary-text">
+        <div class="title-sm" id="summary-main-title">-</div>
+        <div class="desc">Cobertura general por superficie</div>
+      </div>
+    </div>
+    <div class="summary-item">
+      <div class="summary-num amber" id="summary-extra">-</div>
+      <div class="summary-text">
+        <div class="title-sm" id="summary-extra-title">-</div>
+        <div class="desc">Refuerzo en puntos de riesgo</div>
+      </div>
+    </div>
+  </div>
+</div>
+```
+
+  </section>
+
+  <!-- ALERTAS -->
+
+  <section id="alerts-section" class="hidden">
+    <div class="grid-2">
+      <div class="alert-card">
+        <div class="alert-header">
+          <div class="alert-icon amber"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z"/><path d="M12 9v4"/><path d="M12 17h.01"/></svg></div>
+          <span class="alert-tag amber">Verificación obligatoria</span>
+        </div>
+        <p>La <strong style="color:white;font-weight:500">distancia máxima de recorrido</strong> desde cualquier punto del sector hasta el extintor más cercano debe respetarse aunque el cálculo por superficie indique solo 1 unidad. Si la geometría del lugar lo impide, agregue extintores adicionales.</p>
+      </div>
+      <div class="alert-card">
+        <div class="alert-header">
+          <div class="alert-icon orange"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 13c0 5-3.5 7.5-7.66 8.95a1 1 0 0 1-.67-.01C7.5 20.5 4 18 4 13V6a1 1 0 0 1 1-1c2 0 4.5-1.2 6.24-2.72a1.17 1.17 0 0 1 1.52 0C14.51 3.81 17 5 19 5a1 1 0 0 1 1 1z"/></svg></div>
+          <span class="alert-tag orange">Instalación · DS 594</span>
+        </div>
+        <ul>
+          <li>Altura del soporte: máx. <strong>1,30 m</strong></li>
+          <li>Señalización clara y permanente</li>
+          <li>Mantención y certificación <strong>anual</strong></li>
+          <li>Acceso libre y sin obstrucciones</li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <!-- INFO LEGAL -->
+
+  <section>
+    <div class="info-legal">
+      <div class="info-legal-header">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4"/><path d="M12 8h.01"/></svg>
+        <h3>Marco normativo</h3>
+      </div>
+      <div class="info-legal-grid">
+        <div>
+          <h4>DS N° 594/1999 — Art. 46</h4>
+          <p>Reglamento sobre condiciones sanitarias y ambientales básicas en los lugares de trabajo. Establece la obligación de contar con extintores adecuados a los materiales combustibles existentes, en cantidad mínima determinada por superficie y potencial de extinción.</p>
+        </div>
+        <div>
+          <h4>NCh 934:2008</h4>
+          <p>Norma Chilena de prevención de incendios — clasificación de fuegos. Define las clases A, B, C, D y K según los materiales involucrados, orientando la selección del agente extintor compatible.</p>
+        </div>
+      </div>
+      <div class="info-disclaimer">Esta herramienta entrega una estimación referencial. La definición final del proyecto de protección contra incendios debe ser validada por un profesional competente y considerar carga combustible, ocupación, geometría del recinto y normativa local aplicable.</div>
+    </div>
+  </section>
+
+  <footer><p>Calculadora referencial · No reemplaza inspección profesional</p></footer>
+</div>
+
+<script>
+// ============ DATOS ============
+const extintores = [
+  { potencial: '4A',  cobertura: 150, distanciaMax: 9 },
+  { potencial: '6A',  cobertura: 225, distanciaMax: 11 },
+  { potencial: '10A', cobertura: 375, distanciaMax: 13 },
+  { potencial: '20A', cobertura: 420, distanciaMax: 15 }
+];
+
+const ICONS = {
+  package: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m7.5 4.27 9 5.15"/><path d="M21 8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16Z"/><path d="m3.3 7 8.7 5 8.7-5"/><path d="M12 22V12"/></svg>',
+  droplet: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22a7 7 0 0 0 7-7c0-2-1-3.9-3-5.5s-3.5-4-4-6.5c-.5 2.5-2 4.9-4 6.5C6 11.1 5 13 5 15a7 7 0 0 0 7 7z"/></svg>',
+  zap: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 14a1 1 0 0 1-.78-1.63l9.9-10.2a.5.5 0 0 1 .86.46l-1.92 6.02A1 1 0 0 0 13 10h7a1 1 0 0 1 .78 1.63l-9.9 10.2a.5.5 0 0 1-.86-.46l1.92-6.02A1 1 0 0 0 11 14z"/></svg>',
+  beaker: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4.5 3h15"/><path d="M6 3v16a2 2 0 0 0 2 2h8a2 2 0 0 0 2-2V3"/><path d="M6 14h12"/></svg>',
+  chef: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 13.87A4 4 0 0 1 7.41 6a5.11 5.11 0 0 1 1.05-1.54 5 5 0 0 1 7.08 0A5.11 5.11 0 0 1 16.59 6 4 4 0 0 1 18 13.87V21H6Z"/><line x1="6" x2="18" y1="17" y2="17"/></svg>'
+};
+
+const clasesFuego = [
+  { clase: 'A', titulo: 'Sólidos comunes', ejemplos: 'Madera, papel, cartón, textiles, plásticos, caucho', agentes: ['Agua a presión','Polvo químico seco ABC','Espuma AFFF'], icon: 'package', hex: '#10b981' },
+  { clase: 'B', titulo: 'Líquidos y gases inflamables', ejemplos: 'Gasolina, aceites, pinturas, solventes, alcohol, GLP', agentes: ['Polvo químico seco ABC / BC','CO₂','Espuma AFFF'], icon: 'droplet', hex: '#f43f5e' },
+  { clase: 'C', titulo: 'Equipos eléctricos energizados', ejemplos: 'Tableros, motores, computadores, transformadores', agentes: ['CO₂ (no deja residuo)','Polvo químico seco ABC (no conductor)'], icon: 'zap', hex: '#0ea5e9' },
+  { clase: 'D', titulo: 'Metales combustibles', ejemplos: 'Magnesio, sodio, potasio, titanio, aluminio en polvo', agentes: ['Polvo químico especial Clase D','Arena seca (emergencia)'], icon: 'beaker', hex: '#f59e0b' },
+  { clase: 'K', titulo: 'Aceites y grasas de cocina', ejemplos: 'Aceites vegetales, grasas animales en freidoras', agentes: ['Acetato de potasio (Clase K)','Acción saponificante'], icon: 'chef', hex: '#fb923c' }
+];
+
+const extintoresAdicionales = {
+  A: { tipo:'Agua a presión 10 L', cantidad:'1 unidad complementaria', ubicacion:'Bodegas de papel, archivos, almacén textil o zonas con alta carga de sólidos combustibles', razon:'Más eficiente y económico que el polvo ABC en fuegos puros de sólidos. Mayor capacidad de enfriamiento y penetración en brasas profundas.', obligatorio:false },
+  B: { tipo:'Espuma AFFF 9 L o CO₂ 5 kg', cantidad:'1 unidad por punto de riesgo', ubicacion:'Adyacente a almacenes de combustible, talleres de pintura, sala de máquinas o áreas con derrames potenciales', razon:'La espuma AFFF forma una película acuosa que sofoca y previene la reignición en derrames de líquidos inflamables. CO₂ es preferible si hay equipos eléctricos cercanos.', obligatorio:false },
+  C: { tipo:'CO₂ 5 kg', cantidad:'1 unidad por sala eléctrica / sala de servidores', ubicacion:'Junto a tableros eléctricos principales, sala de servidores, UPS, bancos de baterías', razon:'No deja residuo, no daña componentes electrónicos sensibles y es no conductor. El polvo ABC, aunque eficaz, contamina y deteriora equipos.', obligatorio:false },
+  D: { tipo:'Polvo químico especial Clase D (específico al metal)', cantidad:'1 unidad mínima en cada punto de riesgo', ubicacion:'En el lugar exacto de manipulación, almacenamiento o procesamiento del metal combustible', razon:'OBLIGATORIO. Los agentes comunes (agua, polvo ABC, CO₂) reaccionan violentamente con metales como sodio, potasio, magnesio o titanio, intensificando el incendio. El agente debe ser específico al metal presente.', obligatorio:true },
+  K: { tipo:'Acetato de Potasio (Clase K) 6 L', cantidad:'1 unidad por línea de cocción', ubicacion:'En la cocina, junto a freidoras, planchas o estaciones de cocción con aceite a alta temperatura', razon:'OBLIGATORIO en cocinas comerciales. Genera saponificación: forma una capa jabonosa que enfría el aceite y sella la superficie evitando la reignición. El polvo ABC NO es efectivo a temperaturas de aceite sobre 340°C.', obligatorio:true }
+};
+
+// ============ ESTADO ============
+let area = '';
+let clasesSeleccionadas = [];
+
+// ============ INICIALIZACIÓN ============
+function initClasses() {
+  const grid = document.getElementById('classes-grid');
+  grid.innerHTML = clasesFuego.map(cf => `
+    <button class="class-btn" data-clase="${cf.clase}" data-color="${cf.clase}">
+      ${ICONS[cf.icon]}
+      <span class="letter">${cf.clase}</span>
+    </button>
+  `).join('');
+  grid.querySelectorAll('.class-btn').forEach(btn => {
+    btn.addEventListener('click', () => toggleClase(btn.dataset.clase));
+  });
+}
+
+function toggleClase(c) {
+  if (clasesSeleccionadas.includes(c)) clasesSeleccionadas = clasesSeleccionadas.filter(x => x !== c);
+  else clasesSeleccionadas.push(c);
+  render();
+}
+
+document.getElementById('area-input').addEventListener('input', e => { area = e.target.value; render(); });
+document.querySelectorAll('.quick-btn').forEach(b => {
+  b.addEventListener('click', () => {
+    area = b.dataset.val;
+    document.getElementById('area-input').value = area;
+    render();
+  });
+});
+
+// ============ CÁLCULOS ============
+function getResultados() {
+  const sup = parseFloat(area);
+  if (!sup || sup <= 0) return null;
+  return extintores.map(ext => {
+    const cantidad = Math.max(1, Math.ceil(sup / ext.cobertura));
+    return { ...ext, cantidad, coberturaTotal: cantidad * ext.cobertura, excedente: cantidad * ext.cobertura - sup };
+  });
+}
+
+function getOptimo(resultados) {
+  if (!resultados) return null;
+  return [...resultados].sort((a,b) => a.cantidad !== b.cantidad ? a.cantidad - b.cantidad : a.excedente - b.excedente)[0];
+}
+
+function getSugerenciaAgente() {
+  if (clasesSeleccionadas.length === 0) return null;
+  const s = new Set(clasesSeleccionadas);
+  if (s.has('D')) return { tipo:'Polvo químico especial Clase D', nota:'Las clases D requieren un agente específico no compatible con otros agentes comunes. Considere extintores adicionales independientes.' };
+  if (s.has('K')) return { tipo:'Acetato de Potasio (Clase K)', nota:'Obligatorio en cocinas comerciales. Complementar con ABC para otras clases presentes.' };
+  if (s.has('A') && s.has('B') && s.has('C')) return { tipo:'Polvo químico seco ABC (multipropósito)', nota:'Cubre las tres clases más comunes en un solo equipo. La opción más versátil para zonas mixtas.' };
+  if (s.has('B') && s.has('C')) return { tipo:'CO₂ o Polvo químico seco BC/ABC', nota:'CO₂ recomendado donde no se desee residuo (salas de servidores, equipos sensibles).' };
+  if (s.has('C')) return { tipo:'CO₂ o Polvo químico seco ABC', nota:'CO₂ ideal para equipos electrónicos sensibles por no dejar residuo.' };
+  if (s.has('A')) return { tipo:'Agua a presión o Polvo químico seco ABC', nota:'Para sólidos exclusivamente, el agua es muy efectiva y económica.' };
+  if (s.has('B')) return { tipo:'Polvo químico seco ABC / BC o Espuma AFFF', nota:'La espuma es eficaz en derrames de líquidos por su acción cubriente.' };
+  return null;
+}
+
+// ============ RENDER ============
+function render() {
+  // Clases activas - update buttons
+  document.querySelectorAll('.class-btn').forEach(btn => {
+    btn.classList.toggle('active', clasesSeleccionadas.includes(btn.dataset.clase));
+  });
+
+  // Lista de clases seleccionadas
+  const selectedList = document.getElementById('selected-list');
+  const clasesActivas = clasesFuego.filter(cf => clasesSeleccionadas.includes(cf.clase));
+  selectedList.innerHTML = clasesActivas.map(cf => `
+    <div class="selected-item">
+      <div class="selected-badge" style="background: linear-gradient(135deg, ${cf.hex}, ${cf.hex}cc);">${cf.clase}</div>
+      <div class="selected-info">
+        <div class="title">${cf.titulo}</div>
+        <div class="examples">${cf.ejemplos}</div>
+      </div>
+    </div>
+  `).join('');
+
+  const resultados = getResultados();
+  const optimo = getOptimo(resultados);
+  const resSection = document.getElementById('resultados-section');
+  const alertSection = document.getElementById('alerts-section');
+
+  if (resultados && optimo) {
+    resSection.classList.remove('hidden');
+    alertSection.classList.remove('hidden');
+    document.getElementById('hero-cantidad').textContent = optimo.cantidad;
+    document.getElementById('hero-cantidad-desc').textContent = 'extintor' + (optimo.cantidad !== 1 ? 'es' : '');
+    document.getElementById('hero-potencial').textContent = optimo.potencial;
+    document.getElementById('hero-cobertura').textContent = optimo.cobertura + ' m² c/u';
+    document.getElementById('hero-distancia').textContent = optimo.distanciaMax;
+
+    const tbody = document.getElementById('results-tbody');
+    tbody.innerHTML = resultados.map(r => `
+      <tr class="${r.potencial === optimo.potencial ? 'optimo' : ''}">
+        <td><span class="td-potencial">${r.potencial}</span>${r.potencial === optimo.potencial ? '<span class="tag-optimo">ÓPTIMO</span>' : ''}</td>
+        <td>${r.cobertura} m²</td>
+        <td>${r.distanciaMax} m</td>
+        <td><span class="td-cantidad">${r.cantidad}</span></td>
+        <td class="hide-mobile">${r.coberturaTotal} m²</td>
+      </tr>
+    `).join('');
+  } else {
+    resSection.classList.add('hidden');
+    alertSection.classList.add('hidden');
+  }
+
+  // Agente
+  const sug = getSugerenciaAgente();
+  const agentSection = document.getElementById('agent-section');
+  if (sug) {
+    agentSection.classList.remove('hidden');
+    document.getElementById('agent-name').textContent = sug.tipo;
+    document.getElementById('agent-note').textContent = sug.nota;
+    document.getElementById('agent-classes').innerHTML = clasesActivas.map(cf => `
+      <div class="class-detail">
+        <div class="class-detail-icon" style="background: linear-gradient(135deg, ${cf.hex}, ${cf.hex}cc);">${ICONS[cf.icon]}</div>
+        <div style="flex:1">
+          <div style="display:flex;align-items:center;gap:8px;margin-bottom:4px">
+            <span class="class-detail-letter">${cf.clase}</span>
+            <span class="class-detail-title">${cf.titulo}</span>
+          </div>
+          <div class="class-detail-examples">${cf.ejemplos}</div>
+          <div class="agent-pills">${cf.agentes.map(a => `<span class="agent-pill">${a}</span>`).join('')}</div>
+        </div>
+      </div>
+    `).join('');
+  } else {
+    agentSection.classList.add('hidden');
+  }
+
+  // Adicionales
+  const addSection = document.getElementById('additional-section');
+  if (clasesActivas.length > 0 && resultados && optimo) {
+    addSection.classList.remove('hidden');
+    document.getElementById('info-box-text').innerHTML = `Además de los <strong class="orange">${optimo.cantidad} extintor${optimo.cantidad !== 1 ? 'es' : ''} ${optimo.potencial}</strong> calculados por superficie, se recomienda <strong class="white">reforzar con unidades especializadas</strong> en el punto de riesgo específico.`;
+
+    document.getElementById('additional-list').innerHTML = clasesActivas.map(cf => {
+      const adic = extintoresAdicionales[cf.clase];
+      return `
+        <div class="additional-card">
+          <div class="additional-header">
+            <div class="add-icon" style="background: linear-gradient(135deg, ${cf.hex}, ${cf.hex}cc);">${ICONS[cf.icon]}</div>
+            <div class="add-content">
+              <div class="add-title-row">
+                <span class="add-class-name">Clase ${cf.clase}</span>
+                <span class="${adic.obligatorio ? 'tag-obligatorio' : 'tag-recomendado'}">${adic.obligatorio ? 'OBLIGATORIO' : 'RECOMENDADO'}</span>
+              </div>
+              <div class="add-grid">
+                <div class="add-section">
+                  <div class="label-mini">Extintor sugerido</div>
+                  <div class="value-text">${adic.tipo}</div>
+                  <span class="pill">${adic.cantidad}</span>
+                </div>
+                <div class="add-section">
+                  <div class="label-mini">Ubicación sugerida</div>
+                  <div class="ubic-text">${adic.ubicacion}</div>
+                </div>
+              </div>
+              <div class="add-justification"><strong>Justificación —</strong>${adic.razon}</div>
+            </div>
+          </div>
+        </div>
+      `;
+    }).join('');
+
+    document.getElementById('summary-main').textContent = optimo.cantidad + '×';
+    document.getElementById('summary-main-title').textContent = 'Extintor potencial ' + optimo.potencial;
+    document.getElementById('summary-extra').textContent = '+' + clasesActivas.length;
+    const plural = clasesActivas.length !== 1;
+    document.getElementById('summary-extra-title').textContent = `Unidad${plural?'es':''} especializada${plural?'s':''}`;
+  } else {
+    addSection.classList.add('hidden');
+  }
+}
+
+initClasses();
+render();
+</script>
+
+</body>
+</html>
